@@ -1,22 +1,28 @@
 {
   "name": "secret_santa",
-  "module": "src/index.ts",
-  "type": "module",
+  "version": "1.0.50",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --hot src/index.ts",
     "start": "bun run src/index.ts",
+    "docker:build": "docker build -t secret_santa .",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "docker:restart": "bun run scripts/docker-restart.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun run src/migrate.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "dotenv": "^17.2.2",
     "drizzle-orm": "^0.29.0",
-    "elysia": "^0.7.30",
+    "elysia": "latest",
     "postgres": "^3.4.3"
   },
   "devDependencies": {
+    "bun-types": "latest",
     "@types/node": "^20.8.0",
-    "bun-types": "^1.0.0",
     "drizzle-kit": "^0.20.0"
-  }
+  },
+  "module": "src/index.js"
 }
