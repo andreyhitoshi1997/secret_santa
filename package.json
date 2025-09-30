@@ -5,24 +5,21 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --hot src/index.ts",
     "start": "bun run src/index.ts",
-    "docker:build": "docker build -t secret_santa .",
-    "docker:up": "docker-compose up",
-    "docker:down": "docker-compose down",
-    "docker:restart": "bun run scripts/docker-restart.ts",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "bun run src/migrate.ts",
-    "db:studio": "drizzle-kit studio"
+    "redis:test": "bun run src/test-redis.ts"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
-    "drizzle-orm": "^0.29.0",
+    "drizzle-orm": "^0.44.5",
     "elysia": "latest",
-    "postgres": "^3.4.3"
+    "pg": "^8.16.3",
+    "redis": "^4.6.10"
   },
   "devDependencies": {
-    "bun-types": "latest",
     "@types/node": "^20.8.0",
-    "drizzle-kit": "^0.20.0"
+    "@types/pg": "^8.15.5",
+    "@types/redis": "^4.0.11",
+    "bun-types": "latest",
+    "drizzle-kit": "^0.31.5"
   },
   "module": "src/index.js"
 }
