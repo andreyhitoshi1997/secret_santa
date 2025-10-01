@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   app:
+    container_name: secret_santa-app
     build: .
     ports:
       - "${APP_PORT}:${APP_PORT}"
@@ -17,6 +18,7 @@ services:
     command: bun run dev
 
   db:
+    container_name: secret_santa-db
     image: postgres:15
     env_file:
       - .env
