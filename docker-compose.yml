@@ -1,29 +1,15 @@
 version: "3.8"
 
 services:
-  app:
-    container_name: secret_santa-app
-    build: .
-    ports:
-      - "${APP_PORT}:${APP_PORT}"
-    depends_on:
-      - db
-    env_file:
-      - .env
+  postgres:
+    image: postgres:17
+    container_name: secret_santa
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-    volumes:
-      - ./src:/app/src
-      - ./drizzle:/app/drizzle
-    command: bun run dev
-
-  db:
-    container_name: secret_santa-db
-    image: postgres:15
-    env_file:
-      - .env
+      POSTGRES_DB: secret_santa
+      POSTGRES_USER: secret
+      POSTGRES_PASSWORD: santa
     ports:
-      - "${DB_PORT}:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
