@@ -15,6 +15,13 @@
       "when": 1759527023549,
       "tag": "0001_giant_microbe",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1759627081201,
+      "tag": "0002_romantic_gideon",
+      "breakpoints": true
     }
   ]
 }
