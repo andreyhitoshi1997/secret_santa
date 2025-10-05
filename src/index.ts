@@ -14,6 +14,11 @@ const sessionResponseSchema = z.object({
   createdAt: z.string(),
 });
 
+const closeSessionResponseSchema = z.object({
+  status: z.string(),
+  closedAt: z.string(),
+});
+
 const app = new Elysia()
   .get("/", () => "Hello Elysia")
   .post(
@@ -28,6 +33,18 @@ const app = new Elysia()
     {
       body: createSessionSchema,
       response: sessionResponseSchema,
+    }
+  )
+  .post(
+    "/sessions/:sessionId/close",
+    async ({ params }) => {
+      const service = new managementSession();
+      const result = await service.closeSession(params.sessionId);
+
+      return result;
+    },
+    {
+      response: closeSessionResponseSchema,
     }
   )
   .listen(3000);

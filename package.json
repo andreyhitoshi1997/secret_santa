@@ -6,7 +6,9 @@
     "dev": "bun run --hot src/index.ts",
     "start": "bun run src/index.ts",
     "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down"
+    "docker:down": "docker-compose down",
+    "db:generate": "bun --env-file .env --bun drizzle-kit generate",
+    "db:migrate": "bun --env-file .env --bun drizzle-kit migrate"
   },
   "dependencies": {
     "@elysiajs/openapi": "^1.4.11",

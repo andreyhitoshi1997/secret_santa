@@ -22,6 +22,13 @@
       "when": 1759627081201,
       "tag": "0002_romantic_gideon",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1759628128760,
+      "tag": "0003_majestic_shiva",
+      "breakpoints": true
     }
   ]
 }

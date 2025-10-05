@@ -8,4 +8,5 @@ export const sessions = pgTable("sessions", {
   status: varchar("status", { length: 20 }).notNull().default("open"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  closedAt: timestamp("closed_at"),
 });
