@@ -108,6 +108,12 @@ O servidor estará disponível em http://localhost:3000
 bun run dev          # Inicia servidor em modo desenvolvimento (hot reload)
 bun run start        # Inicia servidor em modo produção
 
+# Testes
+bun test            # Executa testes unitários
+bun run test:watch  # Executa testes em modo watch
+bun run test:coverage # Executa testes com cobertura de código
+bun run test:ci     # Executa testes para CI/CD
+
 # Docker
 bun run docker:up    # Sobe o container PostgreSQL
 bun run docker:down  # Para o container PostgreSQL
@@ -321,6 +327,48 @@ bun run db:migrate
 # Desenvolver
 bun run dev
 ```
+
+### Testes Unitários
+
+O projeto inclui testes unitários para os módulos de negócio usando Jest:
+
+```bash
+# Executar todos os testes
+bun test
+
+# Executar testes em modo watch (reexecuta quando arquivos mudam)
+bun run test:watch
+
+# Executar testes com relatório de cobertura
+bun run test:coverage
+
+# Executar testes para CI/CD (sem watch)
+bun run test:ci
+```
+
+#### Estrutura dos Testes
+
+```
+src/modules/
+├── email/
+│   ├── service.ts
+│   └── email.service.test.ts     # Testes do serviço de email
+├── participants/
+│   ├── service.ts
+│   └── participants.service.test.ts  # Testes do serviço de participantes
+└── session/
+    ├── service.ts
+    └── session.service.test.ts       # Testes do serviço de sessão
+```
+
+#### Cobertura de Testes
+
+Os testes cobrem:
+
+- ✅ **EmailService**: Envio de emails e templates
+- ✅ **ParticipantsService**: Validação de dados e lógica de negócio
+- ✅ **SessionBusinessLogic**: Algoritmo de sorteio e validações
+- ✅ **Validações**: Formatos de email, status de sessão, estruturas de dados
 
 ### Gerar Nova Migração
 
