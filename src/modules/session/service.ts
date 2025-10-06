@@ -1,6 +1,7 @@
 import { db } from "@/database/client";
 import { sessions } from "@/database/schema/sessions";
 import { eq } from "drizzle-orm";
+import { SessionStatus } from "./sessionStatus";
 
 export class managementSession {
   constructor() {}
@@ -40,7 +41,7 @@ export class managementSession {
     const updatedSession = await db
       .update(sessions)
       .set({
-        status: "closed",
+        status: SessionStatus.ClOSED,
         updatedAt: now,
         closedAt: now,
       })

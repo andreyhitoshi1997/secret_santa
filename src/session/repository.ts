@@ -2,88 +2,131 @@ import { eq } from "drizzle-orm";
 import { db } from "../database/client";
 import { sessions } from "../database/schema/sessions";
 import { Session, SessionInsert, SessionUpdate } from "./model";
+import { SessionStatus } from "@/modules/session/sessionStatus";
 
 export namespace SessionRepository {
   export const insertSession = async (sessionInsert: SessionInsert) => {
-    const [result] = await db
-      .insert(sessions)
-      .values(sessionInsert)
-      .returning();
+    try {
+      const [result] = await db
+        .insert(sessions)
+        .values({
+          ...sessionInsert,
+          status: sessionInsert.status
+            ? SessionStatus[sessionInsert.status as keyof typeof SessionStatus]
+            : undefined,
+        })
+        .returning();
 
-    const session: Session = result as Session;
+      const session: Session = result as Session;
 
-    return session;
+      return session;
+    } catch (error) {
+      console.error("Error inserting session:", error);
+      throw error;
+    }
   };
 
   export const queryById = async (id: string) => {
-    const result = await db.query.sessions.findFirst({
-      where: eq(sessions.id, id),
-    });
+    try {
+      const result = await db.query.sessions.findFirst({
+        where: eq(sessions.id, id),
+      });
 
-    if (!result) {
-      return null;
+      if (!result) {
+        return null;
+      }
+
+      const session: Session = result as Session;
+
+      return session;
+    } catch (error) {
+      console.error("Error querying session by id:", error);
+      throw error;
     }
-
-    const session: Session = result as Session;
-
-    return session;
   };
 
   export const queryBySecretToken = async (secretToken: string) => {
-    const result = await db.query.sessions.findFirst({
-      where: eq(sessions.secretToken, secretToken),
-    });
+    try {
+      const result = await db.query.sessions.findFirst({
+        where: eq(sessions.secretToken, secretToken),
+      });
 
-    if (!result) {
-      return null;
+      if (!result) {
+        return null;
+      }
+
+      const session: Session = result as Session;
+
+      return session;
+    } catch (error) {
+      console.error("Error querying session by secret token:", error);
+      throw error;
     }
-
-    const session: Session = result as Session;
-
-    return session;
   };
 
   export const queryByCreatorEmail = async (creatorEmail: string) => {
-    const results = await db.query.sessions.findMany({
-      where: eq(sessions.creatorEmail, creatorEmail),
-    });
+    try {
+      const results = await db.query.sessions.findMany({
+        where: eq(sessions.creatorEmail, creatorEmail),
+      });
 
-    const sessionList: Session[] = results as Session[];
+      const sessionList: Session[] = results as Session[];
 
-    return sessionList;
+      return sessionList;
+    } catch (error) {
+      console.error("Error querying sessions by creator email:", error);
+      throw error;
+    }
   };
 
   export const update = async (id: string, sessionUpdate: SessionUpdate) => {
-    const [result] = await db
-      .update(sessions)
-      .set({
-        ...sessionUpdate,
-        updatedAt: new Date(),
-      })
-      .where(eq(sessions.id, id))
-      .returning();
+    try {
+      const [result] = await db
+        .update(sessions)
+        .set({
+          ...sessionUpdate,
+          status: sessionUpdate.status
+            ? SessionStatus[sessionUpdate.status as keyof typeof SessionStatus]
+            : undefined,
+          updatedAt: new Date(),
+        })
+        .where(eq(sessions.id, id))
+        .returning();
 
-    if (!result) {
-      return null;
+      if (!result) {
+        return null;
+      }
+
+      const session: Session = result as Session;
+
+      return session;
+    } catch (error) {
+      console.error("Error updating session:", error);
+      throw error;
     }
-
-    const session: Session = result as Session;
-
-    return session;
   };
 
-  export const deleteById = async (id: string) => {
-    const [result] = await db
-      .delete(sessions)
-      .where(eq(sessions.id, id))
-      .returning();
+  export const closeSession = async (id: string) => {
+    try {
+      const [result] = await db
+        .update(sessions)
+        .set({
+          status: SessionStatus.ClOSED,
+          updatedAt: new Date(),
+        })
+        .where(eq(sessions.id, id))
+        .returning();
 
-    if (!result) {
-      return null;
+      if (!result) {
+        return null;
+      }
+
+      const session: Session = result as Session;
+
+      return session;
+    } catch (error) {
+      console.error("Error closing session:", error);
+      throw error;
     }
-
-    const session: Session = result as Session;
-
-    return session;
   };
 }
