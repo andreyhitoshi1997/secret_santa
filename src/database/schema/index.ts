@@ -1,9 +1,9 @@
-import { sessions } from "./sessions";
+import { sessions as secretSantaSessions } from "./sessions";
 import { participants } from "./participants";
 import { assignments } from "./assignments";
 
 export const schema = {
-  sessions,
+  sessions: secretSantaSessions,
   participants,
   assignments,
 };

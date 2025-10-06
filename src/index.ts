@@ -7,8 +7,6 @@ import {
   AddParticipantsResponseSchema,
 } from "./modules/participants/model";
 import { SessionStatus } from "./modules/session/sessionStatus";
-import { betterAuthPlugin } from "./http/plugins/better-auth";
-import { auth } from "./auth";
 
 const createSessionSchema = z.object({
   creatorEmail: z.string().email(),
@@ -35,7 +33,6 @@ const lockSessionResponseSchema = z.object({
 });
 
 const app = new Elysia()
-  .all("/auth/*", ({ request }) => auth.handler(request))
   .get("/", () => "Hello Elysia")
   .post(
     "/session",
