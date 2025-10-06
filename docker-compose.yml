@@ -1,13 +1,11 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:17
     container_name: secret_santa
     environment:
-      POSTGRES_DB: secret_santa
-      POSTGRES_USER: secret
-      POSTGRES_PASSWORD: santa
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:

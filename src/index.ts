@@ -6,6 +6,9 @@ import {
   AddParticipantsRequestSchema,
   AddParticipantsResponseSchema,
 } from "./modules/participants/model";
+import { SessionStatus } from "./modules/session/sessionStatus";
+import { betterAuthPlugin } from "./http/plugins/better-auth";
+import { auth } from "./auth";
 
 const createSessionSchema = z.object({
   creatorEmail: z.string().email(),
@@ -24,16 +27,24 @@ const closeSessionResponseSchema = z.object({
   closedAt: z.string(),
 });
 
+const lockSessionResponseSchema = z.object({
+  status: z.nativeEnum(SessionStatus),
+  participantCount: z.number(),
+  emailsSent: z.number(),
+  lockedAt: z.string(),
+});
+
 const app = new Elysia()
+  .all("/auth/*", ({ request }) => auth.handler(request))
   .get("/", () => "Hello Elysia")
   .post(
     "/session",
     async ({ body }) => {
       const validatedBody = createSessionSchema.parse(body);
       const service = new managementSession();
-      const session = await service.createSession(validatedBody);
+      const result = await service.createSession(validatedBody);
 
-      return session;
+      return result;
     },
     {
       body: createSessionSchema,
@@ -68,6 +79,18 @@ const app = new Elysia()
     {
       body: AddParticipantsRequestSchema,
       response: AddParticipantsResponseSchema,
+    }
+  )
+  .post(
+    "/sessions/:sessionId/lock",
+    async ({ params }) => {
+      const service = new managementSession();
+      const result = await service.lockSession(params.sessionId);
+
+      return result;
+    },
+    {
+      response: lockSessionResponseSchema,
     }
   )
   .listen(3000);

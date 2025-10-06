@@ -20,7 +20,6 @@ export const ParticipantInsertSchema = ParticipantSchema.omit({
 
 export type ParticipantInsert = z.infer<typeof ParticipantInsertSchema>;
 
-// Schema for individual participant in the request
 export const AddParticipantItemSchema = z.object({
   email: z.string().email("Invalid email format"),
   name: z.string().optional(),
@@ -40,7 +39,6 @@ export type AddParticipantsRequest = z.infer<
   typeof AddParticipantsRequestSchema
 >;
 
-// Schema for the response
 export const AddParticipantsResponseSchema = z.object({
   added: z.number().min(0),
   totalParticipants: z.number().min(0),
