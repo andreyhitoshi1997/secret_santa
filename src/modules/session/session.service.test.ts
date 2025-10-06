@@ -1260,19 +1260,16 @@ describe("SessionBusinessLogic", () => {
         })),
       };
 
-      // Test methods without modifying readonly properties
       const sessionService = new managementSession();
-
-      // Test createSession with various scenarios
       const createScenarios = [
         {
-          creatorEmail: "test@example.com", 
-          sessionName: "Test Session"
+          creatorEmail: "test@example.com",
+          sessionName: "Test Session",
         },
         {
           creatorEmail: "another@test.com",
-          sessionName: undefined
-        }
+          sessionName: undefined,
+        },
       ];
 
       for (const scenario of createScenarios) {
@@ -1283,7 +1280,6 @@ describe("SessionBusinessLogic", () => {
         }
       }
 
-      // Test closeSession
       try {
         await sessionService.closeSession("test-session-id");
       } catch (error) {
@@ -1343,17 +1339,13 @@ describe("SessionBusinessLogic", () => {
         }),
       };
 
-      // Test lockSession without modifying readonly properties
       const sessionService = new managementSession();
 
       try {
         await sessionService.lockSession("test-session");
       } catch (error) {
-        // Expected to fail due to database constraints
         expect(error).toBeDefined();
       }
-
-      // Test that the service exists and has the method
       expect(sessionService).toBeDefined();
       expect(typeof sessionService.lockSession).toBe("function");
     });
