@@ -343,88 +343,98 @@ describe("managementSession", () => {
   });
 
   describe("method integration tests", () => {
-
     it("should handle createSession with missing data", async () => {
       const service = new managementSession();
-      
-      await expect(service.createSession({ creatorEmail: "", sessionName: "Test" }))
-        .rejects
-        .toThrow("Digite corretamente os dados informados");
 
-      await expect(service.createSession({ creatorEmail: "test@example.com", sessionName: "" }))
-        .rejects
-        .toThrow("Digite corretamente os dados informados");
+      await expect(
+        service.createSession({ creatorEmail: "", sessionName: "Test" })
+      ).rejects.toThrow("Digite corretamente os dados informados");
 
-      await expect(service.createSession({ creatorEmail: undefined as any, sessionName: "Test" }))
-        .rejects
-        .toThrow("Digite corretamente os dados informados");
+      await expect(
+        service.createSession({
+          creatorEmail: "test@example.com",
+          sessionName: "",
+        })
+      ).rejects.toThrow("Digite corretamente os dados informados");
 
-      await expect(service.createSession({ creatorEmail: "test@example.com", sessionName: undefined as any }))
-        .rejects
-        .toThrow("Digite corretamente os dados informados");
+      await expect(
+        service.createSession({
+          creatorEmail: undefined as any,
+          sessionName: "Test",
+        })
+      ).rejects.toThrow("Digite corretamente os dados informados");
+
+      await expect(
+        service.createSession({
+          creatorEmail: "test@example.com",
+          sessionName: undefined as any,
+        })
+      ).rejects.toThrow("Digite corretamente os dados informados");
     });
 
     it("should handle closeSession with invalid sessionId", async () => {
       const service = new managementSession();
-      
-      await expect(service.closeSession(""))
-        .rejects
-        .toThrow("Digite corretamente a sessão");
 
-      await expect(service.closeSession(undefined as any))
-        .rejects
-        .toThrow("Digite corretamente a sessão");
+      await expect(service.closeSession("")).rejects.toThrow(
+        "Digite corretamente a sessão"
+      );
+
+      await expect(service.closeSession(undefined as any)).rejects.toThrow(
+        "Digite corretamente a sessão"
+      );
     });
 
     it("should handle lockSession with invalid sessionId", async () => {
       const service = new managementSession();
-      
-      await expect(service.lockSession(""))
-        .rejects
-        .toThrow("Session ID is required");
 
-      await expect(service.lockSession(undefined as any))
-        .rejects
-        .toThrow("Session ID is required");
+      await expect(service.lockSession("")).rejects.toThrow(
+        "Session ID is required"
+      );
+
+      await expect(service.lockSession(undefined as any)).rejects.toThrow(
+        "Session ID is required"
+      );
     });
 
     it("should handle database errors in createSession", async () => {
       const service = new managementSession();
-      
-      await expect(service.createSession({ 
-        creatorEmail: "test@example.com", 
-        sessionName: "Test Session" 
-      })).rejects.toThrow();
+
+      await expect(
+        service.createSession({
+          creatorEmail: "test@example.com",
+          sessionName: "Test Session",
+        })
+      ).rejects.toThrow();
     });
 
     it("should handle database errors in closeSession", async () => {
       const service = new managementSession();
-      
+
       await expect(service.closeSession("some-session-id")).rejects.toThrow();
     });
 
     it("should handle database errors in lockSession", async () => {
       const service = new managementSession();
-      
+
       await expect(service.lockSession("some-session-id")).rejects.toThrow();
     });
 
     it("should test console logging paths", () => {
       const service = new managementSession();
       expect(service).toBeInstanceOf(managementSession);
-      
+
       expect(typeof service.createSession).toBe("function");
-      expect(typeof service.closeSession).toBe("function"); 
+      expect(typeof service.closeSession).toBe("function");
       expect(typeof service.lockSession).toBe("function");
     });
 
     it("should handle various error conditions in lockSession", async () => {
       const service = new managementSession();
-      
+
       const testCases = [
         "nonexistent-session-id",
-        "another-invalid-id", 
-        "session-that-does-not-exist"
+        "another-invalid-id",
+        "session-that-does-not-exist",
       ];
 
       for (const sessionId of testCases) {
@@ -434,13 +444,13 @@ describe("managementSession", () => {
 
     it("should handle createSession error paths", async () => {
       const service = new managementSession();
-      
+
       const invalidInputs = [
         { creatorEmail: null, sessionName: "Test" },
         { creatorEmail: "test@example.com", sessionName: null },
         { creatorEmail: "", sessionName: "" },
         { creatorEmail: "   ", sessionName: "Test" },
-        { creatorEmail: "test@example.com", sessionName: "   " }
+        { creatorEmail: "test@example.com", sessionName: "   " },
       ];
 
       for (const input of invalidInputs) {
@@ -450,14 +460,8 @@ describe("managementSession", () => {
 
     it("should test closeSession error paths", async () => {
       const service = new managementSession();
-      
-      const invalidIds = [
-        null,
-        "",
-        "   ",
-        undefined,
-        "invalid-id-format"
-      ];
+
+      const invalidIds = [null, "", "   ", undefined, "invalid-id-format"];
 
       for (const id of invalidIds) {
         await expect(service.closeSession(id as any)).rejects.toThrow();
@@ -893,14 +897,13 @@ describe("SessionBusinessLogic", () => {
 
   describe("lockSession success paths with mocked database", () => {
     it("should successfully lock session and send emails", async () => {
-      
       const sessionService = new managementSession();
-      
+
       const mockSessionId = "test-session-for-lock";
-      
+
       try {
         const result = await sessionService.lockSession(mockSessionId);
-        
+
         expect(typeof result.status).toBe("string");
         expect(typeof result.participantCount).toBe("number");
         expect(typeof result.emailsSent).toBe("number");
@@ -912,14 +915,14 @@ describe("SessionBusinessLogic", () => {
 
     it("should handle lockSession with various session states", async () => {
       const sessionService = new managementSession();
-      
+
       const sessionStates = [
         "already-locked-session",
-        "closed-session-test", 
+        "closed-session-test",
         "insufficient-participants-session",
-        "valid-session-for-lock"
+        "valid-session-for-lock",
       ];
-      
+
       for (const sessionId of sessionStates) {
         try {
           await sessionService.lockSession(sessionId);
@@ -931,7 +934,7 @@ describe("SessionBusinessLogic", () => {
 
     it("should exercise email generation logic in lockSession", async () => {
       const sessionService = new managementSession();
-      
+
       try {
         await sessionService.lockSession("email-generation-test-session");
       } catch (error) {
@@ -941,13 +944,13 @@ describe("SessionBusinessLogic", () => {
 
     it("should handle database transaction errors in lockSession", async () => {
       const sessionService = new managementSession();
-      
+
       const transactionTestCases = [
         "transaction-fail-update",
         "transaction-fail-insert",
-        "transaction-rollback-test"
+        "transaction-rollback-test",
       ];
-      
+
       for (const testCase of transactionTestCases) {
         try {
           await sessionService.lockSession(testCase);
@@ -961,17 +964,17 @@ describe("SessionBusinessLogic", () => {
   describe("closeSession success and error paths", () => {
     it("should handle closeSession database operations", async () => {
       const sessionService = new managementSession();
-      
+
       const closeTestCases = [
         "valid-session-to-close",
         "nonexistent-session-close",
-        "already-closed-session"
+        "already-closed-session",
       ];
-      
+
       for (const sessionId of closeTestCases) {
         try {
           const result = await sessionService.closeSession(sessionId);
-          
+
           expect(typeof result.status).toBe("string");
           expect(typeof result.closedAt).toBe("string");
         } catch (error) {
@@ -984,28 +987,28 @@ describe("SessionBusinessLogic", () => {
   describe("createSession database interaction paths", () => {
     it("should exercise createSession database operations", async () => {
       const sessionService = new managementSession();
-      
+
       const createTestCases = [
         {
           name: "Database Test Session 1",
           creatorEmail: "creator1@test.com",
-          creatorName: "Test Creator 1"
+          creatorName: "Test Creator 1",
         },
         {
           name: "Database Test Session 2",
-          creatorEmail: "creator2@test.com"
+          creatorEmail: "creator2@test.com",
         },
         {
           name: "Very Long Session Name That Might Cause Database Issues",
           creatorEmail: "long.name.creator@test.com",
-          creatorName: "Very Long Creator Name That Should Be Handled Properly"
-        }
+          creatorName: "Very Long Creator Name That Should Be Handled Properly",
+        },
       ];
-      
+
       for (const testCase of createTestCases) {
         try {
           const result = await sessionService.createSession(testCase);
-          
+
           expect(typeof result.sessionId).toBe("string");
           expect(typeof result.status).toBe("string");
           expect(typeof result.createdAt).toBe("string");
@@ -1019,7 +1022,7 @@ describe("SessionBusinessLogic", () => {
   describe("comprehensive code path coverage", () => {
     it("should test lockSession input validation", async () => {
       const sessionService = new managementSession();
-      
+
       try {
         await sessionService.lockSession("");
         expect(false).toBe(true);
@@ -1031,7 +1034,7 @@ describe("SessionBusinessLogic", () => {
 
     it("should test closeSession input validation", async () => {
       const sessionService = new managementSession();
-      
+
       try {
         await sessionService.closeSession("");
         expect(false).toBe(true);
@@ -1043,13 +1046,22 @@ describe("SessionBusinessLogic", () => {
 
     it("should exercise error handling paths in all methods", async () => {
       const sessionService = new managementSession();
-      
+
       const invalidInputs = [
-        { method: "createSession", input: { creatorEmail: "", sessionName: "" } },
-        { method: "createSession", input: { creatorEmail: "test@test.com", sessionName: "" } },
-        { method: "createSession", input: { creatorEmail: "", sessionName: "Test" } },
+        {
+          method: "createSession",
+          input: { creatorEmail: "", sessionName: "" },
+        },
+        {
+          method: "createSession",
+          input: { creatorEmail: "test@test.com", sessionName: "" },
+        },
+        {
+          method: "createSession",
+          input: { creatorEmail: "", sessionName: "Test" },
+        },
         { method: "closeSession", input: "" },
-        { method: "lockSession", input: "" }
+        { method: "lockSession", input: "" },
       ];
 
       for (const testCase of invalidInputs) {
@@ -1061,7 +1073,7 @@ describe("SessionBusinessLogic", () => {
           } else if (testCase.method === "lockSession") {
             await sessionService.lockSession(testCase.input as string);
           }
-          
+
           expect(false).toBe(true);
         } catch (error) {
           expect(error).toBeDefined();
@@ -1071,11 +1083,11 @@ describe("SessionBusinessLogic", () => {
 
     it("should test database error handling in createSession", async () => {
       const sessionService = new managementSession();
-      
+
       try {
         await sessionService.createSession({
           creatorEmail: "valid@test.com",
-          sessionName: "Valid Session Name"
+          sessionName: "Valid Session Name",
         });
       } catch (error) {
         expect(error).toBeDefined();
@@ -1085,7 +1097,7 @@ describe("SessionBusinessLogic", () => {
 
     it("should test database error handling in closeSession", async () => {
       const sessionService = new managementSession();
-      
+
       try {
         await sessionService.closeSession("valid-session-id-format");
       } catch (error) {
@@ -1096,7 +1108,7 @@ describe("SessionBusinessLogic", () => {
 
     it("should test database error handling in lockSession", async () => {
       const sessionService = new managementSession();
-      
+
       try {
         await sessionService.lockSession("valid-session-id-for-lock");
       } catch (error) {
@@ -1107,20 +1119,23 @@ describe("SessionBusinessLogic", () => {
 
     it("should exercise console.error paths", async () => {
       const sessionService = new managementSession();
-      
+
       jest.clearAllMocks();
-      
+
       const errorTests = [
-        () => sessionService.createSession({ creatorEmail: "test@test.com", sessionName: "Test" }),
+        () =>
+          sessionService.createSession({
+            creatorEmail: "test@test.com",
+            sessionName: "Test",
+          }),
         () => sessionService.closeSession("test-session-id"),
-        () => sessionService.lockSession("test-session-id")
+        () => sessionService.lockSession("test-session-id"),
       ];
 
       for (const testFn of errorTests) {
         try {
           await testFn();
-        } catch (error) {
-        }
+        } catch (error) {}
       }
 
       expect(console.error).toHaveBeenCalled();
@@ -1128,7 +1143,7 @@ describe("SessionBusinessLogic", () => {
 
     it("should test various session states and conditions", async () => {
       const sessionService = new managementSession();
-      
+
       const sessionIds = [
         "short",
         "very-long-session-id-that-might-cause-issues-in-some-systems",
@@ -1137,7 +1152,7 @@ describe("SessionBusinessLogic", () => {
         "session.with.dots",
         "SESSION-IN-UPPERCASE",
         "123456789012345",
-        "uuid-format-12345678-1234-5678-9012-123456789012"
+        "uuid-format-12345678-1234-5678-9012-123456789012",
       ];
 
       for (const sessionId of sessionIds) {
@@ -1152,13 +1167,22 @@ describe("SessionBusinessLogic", () => {
 
     it("should test createSession with various input combinations", async () => {
       const sessionService = new managementSession();
-      
+
       const testInputs = [
         { creatorEmail: "test1@example.com", sessionName: "Short" },
-        { creatorEmail: "test2@example.com", sessionName: "Very Long Session Name That Should Still Work" },
-        { creatorEmail: "test.with.dots@example.com", sessionName: "Dots Session" },
-        { creatorEmail: "test+tag@example.com", sessionName: "Tagged Email Session" },
-        { creatorEmail: "TEST@EXAMPLE.COM", sessionName: "UPPERCASE SESSION" }
+        {
+          creatorEmail: "test2@example.com",
+          sessionName: "Very Long Session Name That Should Still Work",
+        },
+        {
+          creatorEmail: "test.with.dots@example.com",
+          sessionName: "Dots Session",
+        },
+        {
+          creatorEmail: "test+tag@example.com",
+          sessionName: "Tagged Email Session",
+        },
+        { creatorEmail: "TEST@EXAMPLE.COM", sessionName: "UPPERCASE SESSION" },
       ];
 
       for (const input of testInputs) {
@@ -1172,62 +1196,68 @@ describe("SessionBusinessLogic", () => {
 
     it("should increase coverage by mocking database client", async () => {
       const originalDb = require("@/database/client").db;
-      
+
       const mockDb = {
         select: jest.fn(() => ({
           from: jest.fn(() => ({
             where: jest.fn(() => ({
-              limit: jest.fn(() => Promise.resolve([
-                { 
-                  id: "test-session", 
-                  name: "Test Session",
-                  status: SessionStatus.OPEN 
-                }
-              ]))
-            }))
-          }))
+              limit: jest.fn(() =>
+                Promise.resolve([
+                  {
+                    id: "test-session",
+                    name: "Test Session",
+                    status: SessionStatus.OPEN,
+                  },
+                ])
+              ),
+            })),
+          })),
         })),
         update: jest.fn(() => ({
           set: jest.fn(() => ({
             where: jest.fn(() => ({
-              returning: jest.fn(() => Promise.resolve([
-                { 
-                  status: SessionStatus.CLOSED,
-                  closedAt: new Date()
-                }
-              ]))
-            }))
-          }))
+              returning: jest.fn(() =>
+                Promise.resolve([
+                  {
+                    status: SessionStatus.CLOSED,
+                    closedAt: new Date(),
+                  },
+                ])
+              ),
+            })),
+          })),
         })),
         transaction: jest.fn((callback: any) => {
           const mockTx = {
             update: jest.fn(() => ({
               set: jest.fn(() => ({
                 where: jest.fn(() => ({
-                  returning: jest.fn(() => Promise.resolve([
-                    { status: SessionStatus.LOCKED }
-                  ]))
-                }))
-              }))
+                  returning: jest.fn(() =>
+                    Promise.resolve([{ status: SessionStatus.LOCKED }])
+                  ),
+                })),
+              })),
             })),
             insert: jest.fn(() => ({
-              values: jest.fn(() => Promise.resolve())
-            }))
+              values: jest.fn(() => Promise.resolve()),
+            })),
           };
           return callback(mockTx);
         }),
         insert: jest.fn(() => ({
           values: jest.fn(() => ({
-            returning: jest.fn(() => Promise.resolve([
-              {
-                sessionId: "new-session-id",
-                secretToken: "secret-token",
-                status: SessionStatus.OPEN,
-                createdAt: new Date()
-              }
-            ]))
-          }))
-        }))
+            returning: jest.fn(() =>
+              Promise.resolve([
+                {
+                  sessionId: "new-session-id",
+                  secretToken: "secret-token",
+                  status: SessionStatus.OPEN,
+                  createdAt: new Date(),
+                },
+              ])
+            ),
+          })),
+        })),
       };
 
       const dbModule = require("@/database/client");
@@ -1235,24 +1265,23 @@ describe("SessionBusinessLogic", () => {
 
       try {
         const sessionService = new managementSession();
-        
+
         try {
           const createResult = await sessionService.createSession({
             creatorEmail: "test@example.com",
-            sessionName: "Test Session"
+            sessionName: "Test Session",
           });
-          
+
           expect(createResult.sessionId).toBeTruthy();
           expect(createResult.status).toBe(SessionStatus.OPEN);
-        } catch (error) {
-        }
-        
+        } catch (error) {}
+
         try {
-          const closeResult = await sessionService.closeSession("test-session-id");
+          const closeResult = await sessionService.closeSession(
+            "test-session-id"
+          );
           expect(closeResult.status).toBe(SessionStatus.CLOSED);
-        } catch (error) {
-        }
-        
+        } catch (error) {}
       } finally {
         dbModule.db = originalDb;
       }
@@ -1260,47 +1289,54 @@ describe("SessionBusinessLogic", () => {
 
     it("should test lockSession with mocked participants", async () => {
       const originalDb = require("@/database/client").db;
-      
+
       const mockDb = {
-        select: jest.fn()
+        select: jest
+          .fn()
           .mockReturnValueOnce({
             from: jest.fn(() => ({
               where: jest.fn(() => ({
-                limit: jest.fn(() => Promise.resolve([{
-                  id: "test-session",
-                  name: "Test Session", 
-                  status: SessionStatus.OPEN
-                }]))
-              }))
-            }))
+                limit: jest.fn(() =>
+                  Promise.resolve([
+                    {
+                      id: "test-session",
+                      name: "Test Session",
+                      status: SessionStatus.OPEN,
+                    },
+                  ])
+                ),
+              })),
+            })),
           })
           .mockReturnValueOnce({
             from: jest.fn(() => ({
-              where: jest.fn(() => Promise.resolve([
-                { id: "p1", email: "user1@test.com", name: "User 1" },
-                { id: "p2", email: "user2@test.com", name: "User 2" },
-                { id: "p3", email: "user3@test.com", name: "User 3" },
-                { id: "p4", email: "user4@test.com", name: "User 4" }
-              ]))
-            }))
+              where: jest.fn(() =>
+                Promise.resolve([
+                  { id: "p1", email: "user1@test.com", name: "User 1" },
+                  { id: "p2", email: "user2@test.com", name: "User 2" },
+                  { id: "p3", email: "user3@test.com", name: "User 3" },
+                  { id: "p4", email: "user4@test.com", name: "User 4" },
+                ])
+              ),
+            })),
           }),
         transaction: jest.fn((callback: any) => {
           const mockTx = {
             update: jest.fn(() => ({
               set: jest.fn(() => ({
                 where: jest.fn(() => ({
-                  returning: jest.fn(() => Promise.resolve([
-                    { status: SessionStatus.LOCKED }
-                  ]))
-                }))
-              }))
+                  returning: jest.fn(() =>
+                    Promise.resolve([{ status: SessionStatus.LOCKED }])
+                  ),
+                })),
+              })),
             })),
             insert: jest.fn(() => ({
-              values: jest.fn(() => Promise.resolve())
-            }))
+              values: jest.fn(() => Promise.resolve()),
+            })),
           };
           return callback(mockTx);
-        })
+        }),
       };
 
       const dbModule = require("@/database/client");
@@ -1308,14 +1344,13 @@ describe("SessionBusinessLogic", () => {
 
       try {
         const sessionService = new managementSession();
-        
+
         const result = await sessionService.lockSession("test-session");
-        
+
         expect(result.status).toBe(SessionStatus.LOCKED);
         expect(typeof result.participantCount).toBe("number");
         expect(typeof result.emailsSent).toBe("number");
         expect(typeof result.lockedAt).toBe("string");
-        
       } catch (error) {
         expect(error).toBeDefined();
       } finally {
@@ -1323,6 +1358,4 @@ describe("SessionBusinessLogic", () => {
       }
     });
   });
-
-
 });

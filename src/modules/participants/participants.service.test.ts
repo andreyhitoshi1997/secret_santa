@@ -14,7 +14,7 @@ import { AddParticipantsRequest } from "./model";
 jest.mock("@/database/client", () => ({
   db: {
     select: jest.fn(),
-    insert: jest.fn()
+    insert: jest.fn(),
   },
 }));
 
@@ -28,7 +28,7 @@ jest.mock("@/database/schema/sessions", () => ({
 jest.mock("@/database/schema/participants", () => ({
   participants: {
     id: "participants.id",
-    sessionId: "participants.sessionId", 
+    sessionId: "participants.sessionId",
     email: "participants.email",
     name: "participants.name",
     isCreator: "participants.isCreator",
@@ -37,12 +37,14 @@ jest.mock("@/database/schema/participants", () => ({
 }));
 
 jest.mock("drizzle-orm", () => ({
-  eq: jest.fn((field: any, value: any) => ({ field, value, type: 'eq' })),
-  and: jest.fn((...conditions: any[]) => ({ conditions, type: 'and' })),
-  inArray: jest.fn((field: any, values: any[]) => ({ field, values, type: 'inArray' })),
+  eq: jest.fn((field: any, value: any) => ({ field, value, type: "eq" })),
+  and: jest.fn((...conditions: any[]) => ({ conditions, type: "and" })),
+  inArray: jest.fn((field: any, values: any[]) => ({
+    field,
+    values,
+    type: "inArray",
+  })),
 }));
-
-
 
 describe("ParticipantsService", () => {
   let service: ParticipantsService;
@@ -467,8 +469,7 @@ describe("ParticipantsService", () => {
 
         try {
           await service.getParticipants(sessionId);
-        } catch (error) {
-        }
+        } catch (error) {}
       }
     });
 
@@ -493,8 +494,7 @@ describe("ParticipantsService", () => {
         expect(async () => {
           try {
             await service.addParticipants("test-session", testCase);
-          } catch {
-          }
+          } catch {}
         }).toBeDefined();
       });
     });
@@ -655,21 +655,19 @@ describe("ParticipantsService", () => {
         }
       }
     });
-
-
   });
 
   describe("improved coverage with actual method execution", () => {
     it("should exercise participant validation logic in addParticipants", async () => {
       const testService = new ParticipantsService();
-      
+
       const request: AddParticipantsRequest = {
         participants: [
           { email: "test1@example.com", name: "Test User 1" },
           { email: "TEST1@EXAMPLE.COM", name: "Duplicate Test" },
           { email: "test2@example.com" },
-          { email: "test3@example.com", name: "Test User 3" }
-        ]
+          { email: "test3@example.com", name: "Test User 3" },
+        ],
       };
 
       try {
@@ -684,21 +682,21 @@ describe("ParticipantsService", () => {
 
       const testCases = [
         {
-          participants: [{ email: "simple@test.com", name: "Simple User" }]
+          participants: [{ email: "simple@test.com", name: "Simple User" }],
         },
         {
           participants: [
             { email: "user1@domain.co.uk", name: "UK User" },
             { email: "user2@subdomain.example.org" },
-            { email: "user+tag@company.com", name: "Tagged Email" }
-          ]
+            { email: "user+tag@company.com", name: "Tagged Email" },
+          ],
         },
         {
           participants: Array.from({ length: 5 }, (_, i) => ({
             email: `user${i}@batch.com`,
-            name: i % 2 === 0 ? `User ${i}` : undefined
-          }))
-        }
+            name: i % 2 === 0 ? `User ${i}` : undefined,
+          })),
+        },
       ];
 
       for (const testCase of testCases) {
@@ -715,9 +713,9 @@ describe("ParticipantsService", () => {
 
       const sessionIds = [
         "participants-test-1",
-        "participants-test-2", 
+        "participants-test-2",
         "empty-session",
-        "another-session"
+        "another-session",
       ];
 
       for (const sessionId of sessionIds) {
@@ -739,42 +737,45 @@ describe("ParticipantsService", () => {
       const testScenarios = [
         {
           name: "single participant",
-          participants: [{ email: "single@test.com", name: "Single User" }]
+          participants: [{ email: "single@test.com", name: "Single User" }],
         },
         {
           name: "multiple participants with mixed names",
           participants: [
             { email: "user1@test.com", name: "User One" },
             { email: "user2@test.com" },
-            { email: "user3@test.com", name: "User Three" }
-          ]
+            { email: "user3@test.com", name: "User Three" },
+          ],
         },
         {
           name: "participants with case variations",
           participants: [
             { email: "Lower@Test.com", name: "Lower" },
-            { email: "UPPER@TEST.COM", name: "Upper" }
-          ]
+            { email: "UPPER@TEST.COM", name: "Upper" },
+          ],
         },
         {
           name: "empty participants array",
-          participants: []
+          participants: [],
         },
         {
           name: "participants with special characters",
           participants: [
             { email: "test+tag@example.com", name: "Tagged Email" },
-            { email: "dots.in.name@example.org", name: "Dotted Name" }
-          ]
-        }
+            { email: "dots.in.name@example.org", name: "Dotted Name" },
+          ],
+        },
       ];
 
       for (const scenario of testScenarios) {
         try {
-          const result = await service.addParticipants(`session-${scenario.name}`, {
-            participants: scenario.participants
-          });
-          
+          const result = await service.addParticipants(
+            `session-${scenario.name}`,
+            {
+              participants: scenario.participants,
+            }
+          );
+
           // Validate response structure regardless of success/failure
           if (result) {
             expect(typeof result.added).toBe("number");
@@ -797,16 +798,16 @@ describe("ParticipantsService", () => {
         "empty-session",
         "nonexistent-session",
         "session-with-special-chars@#$",
-        ""
+        "",
       ];
 
       for (const sessionId of sessionIds) {
         try {
           const participants = await service.getParticipants(sessionId);
-          
+
           // Validate response structure
           expect(Array.isArray(participants)).toBe(true);
-          
+
           if (participants.length > 0) {
             const participant = participants[0];
             expect(participant).toHaveProperty("id");
@@ -829,31 +830,31 @@ describe("ParticipantsService", () => {
           sessionId: "duplicate-test-1",
           participants: [
             { email: "test@example.com", name: "First" },
-            { email: "test@example.com", name: "Duplicate" }
-          ]
+            { email: "test@example.com", name: "Duplicate" },
+          ],
         },
         {
-          sessionId: "duplicate-test-2", 
+          sessionId: "duplicate-test-2",
           participants: [
             { email: "lower@example.com", name: "Lower" },
             { email: "LOWER@EXAMPLE.COM", name: "Upper" },
-            { email: "Lower@Example.Com", name: "Mixed" }
-          ]
+            { email: "Lower@Example.Com", name: "Mixed" },
+          ],
         },
         {
           sessionId: "duplicate-test-3",
           participants: [
             { email: "unique1@test.com", name: "Unique 1" },
             { email: "unique2@test.com", name: "Unique 2" },
-            { email: "unique3@test.com" }
-          ]
-        }
+            { email: "unique3@test.com" },
+          ],
+        },
       ];
 
       for (const scenario of duplicateScenarios) {
         try {
           await service.addParticipants(scenario.sessionId, {
-            participants: scenario.participants
+            participants: scenario.participants,
           });
         } catch (error) {
           // Expected due to database constraints
@@ -869,26 +870,26 @@ describe("ParticipantsService", () => {
       const errorScenarios = [
         {
           sessionId: null as any,
-          participants: [{ email: "test@example.com" }]
+          participants: [{ email: "test@example.com" }],
         },
         {
           sessionId: undefined as any,
-          participants: [{ email: "test@example.com" }]
+          participants: [{ email: "test@example.com" }],
         },
         {
           sessionId: "",
-          participants: [{ email: "test@example.com" }]
+          participants: [{ email: "test@example.com" }],
         },
         {
           sessionId: "valid-session",
-          participants: null as any
-        }
+          participants: null as any,
+        },
       ];
 
       for (const scenario of errorScenarios) {
         try {
           await service.addParticipants(scenario.sessionId, {
-            participants: scenario.participants
+            participants: scenario.participants,
           });
         } catch (error) {
           expect(error).toBeDefined();
@@ -904,16 +905,16 @@ describe("ParticipantsService", () => {
 
     it("should test constructor and method availability", () => {
       const service = new ParticipantsService();
-      
+
       expect(service).toBeInstanceOf(ParticipantsService);
       expect(typeof service.addParticipants).toBe("function");
       expect(typeof service.getParticipants).toBe("function");
-      
+
       // Test that methods can be called
       expect(() => {
         service.addParticipants("test", { participants: [] });
       }).toBeDefined();
-      
+
       expect(() => {
         service.getParticipants("test");
       }).toBeDefined();
@@ -928,14 +929,20 @@ describe("ParticipantsService", () => {
         { email: "test3@example.com", name: null as any },
         { email: "test4@example.com", name: undefined },
         { email: "test5@example.com" }, // No name property
-        { email: "test6@example.com", name: "Very Long Name That Could Potentially Cause Issues With Database Constraints Or Validation Logic" },
+        {
+          email: "test6@example.com",
+          name: "Very Long Name That Could Potentially Cause Issues With Database Constraints Or Validation Logic",
+        },
         { email: "test7@example.com", name: "Nome com Acentos ção" },
-        { email: "test8@example.com", name: "Name with Special !@#$%^&*() Characters" }
+        {
+          email: "test8@example.com",
+          name: "Name with Special !@#$%^&*() Characters",
+        },
       ];
 
       try {
         await service.addParticipants("name-variations-test", {
-          participants: nameVariations
+          participants: nameVariations,
         });
       } catch (error) {
         expect(error).toBeDefined();
@@ -950,14 +957,17 @@ describe("ParticipantsService", () => {
         { email: "with.dots@test.com", name: "With Dots" },
         { email: "with+plus@test.com", name: "With Plus" },
         { email: "subdomain@sub.test.com", name: "Subdomain" },
-        { email: "long-domain-name@very-long-domain-name.co.uk", name: "Long Domain" },
+        {
+          email: "long-domain-name@very-long-domain-name.co.uk",
+          name: "Long Domain",
+        },
         { email: "numbers123@test456.com", name: "Numbers" },
-        { email: "dash-es@test-domain.com", name: "Dashes" }
+        { email: "dash-es@test-domain.com", name: "Dashes" },
       ];
 
       try {
         await service.addParticipants("email-format-test", {
-          participants: emailFormats
+          participants: emailFormats,
         });
       } catch (error) {
         expect(error).toBeDefined();
@@ -969,16 +979,18 @@ describe("ParticipantsService", () => {
 
       const statusTests = [
         "open-session",
-        "closed-session", 
+        "closed-session",
         "locked-session",
         "invalid-session",
-        "nonexistent-session"
+        "nonexistent-session",
       ];
 
       for (const sessionId of statusTests) {
         try {
           await service.addParticipants(sessionId, {
-            participants: [{ email: `test@${sessionId}.com`, name: "Test User" }]
+            participants: [
+              { email: `test@${sessionId}.com`, name: "Test User" },
+            ],
           });
         } catch (error) {
           expect(error).toBeDefined();

@@ -16,6 +16,8 @@ describe("EmailService", () => {
     jest.spyOn(console, "log").mockImplementation(() => {});
     jest.spyOn(console, "warn").mockImplementation(() => {});
     jest.spyOn(console, "error").mockImplementation(() => {});
+
+    // Reset environment variables
     delete process.env.SMTP_USER;
     delete process.env.SMTP_PASS;
   });
@@ -72,6 +74,7 @@ describe("EmailService", () => {
     });
 
     it("should handle transporter creation errors", () => {
+      // Mock nodemailer.createTransport to throw error
       const nodemailer = require("nodemailer");
       const originalCreateTransport = nodemailer.createTransport;
 
@@ -85,12 +88,15 @@ describe("EmailService", () => {
         smtpHost: "failing.smtp.com",
       };
 
+      // This should trigger the error handling in initializeTransporter
       emailService = new EmailService(config);
 
       expect(console.error).toHaveBeenCalledWith(
         "Failed to initialize email transporter:",
         expect.any(Error)
       );
+
+      // Restore original function
       nodemailer.createTransporter = originalCreateTransport;
     });
   });
@@ -271,10 +277,12 @@ describe("EmailService", () => {
     let mockTransporter: any;
 
     beforeEach(() => {
+      // Create a more complete mock transporter
       mockTransporter = {
         sendMail: jest.fn(),
       };
 
+      // Mock nodemailer to return our transporter
       const nodemailer = require("nodemailer");
       nodemailer.createTransport = jest.fn().mockReturnValue(mockTransporter);
     });
@@ -289,6 +297,7 @@ describe("EmailService", () => {
 
       emailService = new EmailService(config);
 
+      // Mock successful email sending
       mockTransporter.sendMail.mockResolvedValue({
         messageId: "test-message-id",
       });
@@ -321,6 +330,7 @@ describe("EmailService", () => {
 
       emailService = new EmailService(config);
 
+      // Mock email sending failure
       const sendError = new Error("SMTP connection failed");
       mockTransporter.sendMail.mockRejectedValue(sendError);
 
@@ -364,6 +374,7 @@ describe("EmailService", () => {
 
       const callArgs = mockTransporter.sendMail.mock.calls[0][0];
 
+      // Validate HTML content contains all required elements
       expect(callArgs.html).toContain("Alice Johnson");
       expect(callArgs.html).toContain("Office Holiday Party 2024");
       expect(callArgs.html).toContain("Bob Wilson");
@@ -397,6 +408,7 @@ describe("EmailService", () => {
 
       const callArgs = mockTransporter.sendMail.mock.calls[0][0];
 
+      // Validate text content
       expect(callArgs.text).toContain("Charlie Brown");
       expect(callArgs.text).toContain("Family Christmas 2024");
       expect(callArgs.text).toContain("Lucy van Pelt");
@@ -416,8 +428,10 @@ describe("EmailService", () => {
 
       emailService = new EmailService(config);
 
+      // Mock successful sends
       mockTransporter.sendMail.mockResolvedValue({ messageId: "bulk-test" });
 
+      // Mock setTimeout to verify delay is used
       const setTimeoutSpy = jest
         .spyOn(global, "setTimeout")
         .mockImplementation((callback: any) => {
@@ -459,6 +473,7 @@ describe("EmailService", () => {
 
       emailService = new EmailService(config);
 
+      // Mock first email to succeed, second to fail
       mockTransporter.sendMail
         .mockResolvedValueOnce({ messageId: "success-1" })
         .mockRejectedValueOnce(new Error("Send failed"));
@@ -482,6 +497,7 @@ describe("EmailService", () => {
 
       const result = await emailService.sendMultipleAssignmentEmails(emails);
 
+      // This should cover the failed++ line (line 204)
       expect(result).toEqual({ sent: 1, failed: 1 });
       expect(mockTransporter.sendMail).toHaveBeenCalledTimes(2);
     });

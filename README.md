@@ -348,7 +348,7 @@ bun run test:ci
 
 #### Estrutura dos Testes
 
-```
+````
 src/modules/
 ├── email/
 │   ├── service.ts
@@ -359,74 +359,13 @@ src/modules/
 └── session/
     ├── service.ts
     └── session.service.test.ts       # Testes do serviço de sessão
-```
-
-#### Cobertura de Testes
-
-**Status Atual da Cobertura (138 testes passando):**
-
-- 🎯 **EmailService**: 100% de cobertura (completo)
-- 🎯 **SessionService**: 85.13% de cobertura (otimizado) 
-- 🔄 **ParticipantsService**: 24.24% de cobertura (limitado por acoplamento ORM)
-- ✅ **SessionBusinessLogic**: Algoritmo de sorteio e validações (completo)
-- ✅ **Validações**: Formatos de email, status de sessão, estruturas de dados
-
-**Os testes cobrem:**
-
-- ✅ **EmailService**: Envio de emails, templates, configuração SMTP, tratamento de erros
-- ✅ **SessionService**: Criação, fechamento, bloqueio de sessões, algoritmo de sorteio
-- ⚠️ **ParticipantsService**: Validação de dados, estruturas de request/response (ORM coupling limitações)
-- ✅ **Business Logic**: Algoritmo circular de sorteio, validações de integridade
-- ✅ **Error Handling**: Cenários de falha, validações de entrada, tratamento de exceptions
-
-**Limitações Conhecidas:**
-
-- **ParticipantsService**: Coverage baixo devido ao forte acoplamento com Drizzle ORM
-- **Recomendação**: Implementar testes de integração ou refatorar para injeção de dependência
-
-### Próximos Passos para Melhoria de Coverage
-
-#### ParticipantsService (24.24% → Target: 80%+)
-
-**Opção 1: Testes de Integração**
-```bash
-# Implementar testes com banco de dados real em memória
-bun add --dev @testcontainers/postgresql
-# Criar setup de teste com container Docker para testes reais
-```
-
-**Opção 2: Refatoração para Injeção de Dependência**
-```typescript
-// Exemplo de refatoração proposta:
-export class ParticipantsService {
-  constructor(private dbClient: DatabaseClient) {}
-  // Permitir injeção do cliente de banco mockado
-}
-```
-
-**Opção 3: Abstrair Queries Complexas**
-```typescript
-// Criar repository pattern para melhor testabilidade
-export interface ParticipantsRepository {
-  findBySessionId(sessionId: string): Promise<Participant[]>
-  create(participants: ParticipantInsert[]): Promise<void>
-}
-```
-
-#### Cobertura Adicional Recomendada
-
-- **Testes E2E**: Fluxo completo da API com banco real
-- **Testes de Performance**: Algoritmo de sorteio com grandes grupos
-- **Testes de Concorrência**: Múltiplos usuários adicionando participantes simultaneamente
-- **Validação de Schema**: Drizzle schema validation tests
-
 ### Gerar Nova Migração
 
 ```bash
 # Após alterar os schemas
 bun run db:generate
 bun run db:migrate
-```
+````
 
 ## Docker
 
