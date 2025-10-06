@@ -8,6 +8,7 @@ export const SessionSchema = z.object({
   status: z.enum(["open", "closed", "completed"]).default("open"),
   createdAt: z.date(),
   updatedAt: z.date(),
+  closedAt: z.date().nullable(),
 });
 
 export type Session = z.infer<typeof SessionSchema>;

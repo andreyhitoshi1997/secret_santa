@@ -1,6 +1,11 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
 import { managementSession } from "./modules/session/service";
+import { ParticipantsService } from "./modules/participants/service";
+import {
+  AddParticipantsRequestSchema,
+  AddParticipantsResponseSchema,
+} from "./modules/participants/model";
 
 const createSessionSchema = z.object({
   creatorEmail: z.string().email(),
@@ -45,6 +50,24 @@ const app = new Elysia()
     },
     {
       response: closeSessionResponseSchema,
+    }
+  )
+  .post(
+    "/sessions/:sessionId/participants",
+    async ({ params, body }) => {
+      const validatedBody = AddParticipantsRequestSchema.parse(body);
+
+      const participantsService = new ParticipantsService();
+      const result = await participantsService.addParticipants(
+        params.sessionId,
+        validatedBody
+      );
+
+      return result;
+    },
+    {
+      body: AddParticipantsRequestSchema,
+      response: AddParticipantsResponseSchema,
     }
   )
   .listen(3000);
