@@ -1,11 +1,7 @@
 import { eq } from "drizzle-orm";
-import { db } from "../database/client";
-import { sessions } from "../database/schema/sessions";
-import {
-  Session,
-  SessionInsert,
-  SessionUpdate,
-} from "../modules/session/model";
+import { db } from "../../database/client";
+import { sessions } from "../../database/schema/sessions";
+import { Session, SessionInsert, SessionUpdate } from "./model";
 import { SessionStatus } from "@/modules/session/sessionStatus";
 
 export namespace SessionRepository {
