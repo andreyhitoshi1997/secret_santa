@@ -37,12 +37,35 @@ export class EmailService {
 
   private initializeTransporter() {
     try {
-      if (!this.config.smtpUser || !this.config.smtpPass) {
-        console.warn(
-          "No SMTP credentials provided. Email functionality will be mocked."
+      if (
+        !this.config.smtpUser ||
+        !this.config.smtpPass ||
+        this.config.smtpUser === "your_email@gmail.com" ||
+        this.config.smtpPass === "your_app_password" ||
+        this.config.smtpPass === "your_gmail_app_password"
+      ) {
+        console.log("📧 SMTP Configuration Status: DISABLED");
+        console.log("   Email functionality is running in MOCK MODE.");
+        console.log("   To enable actual email sending:");
+        console.log("   1. Set SMTP_USER to your Gmail address");
+        console.log("   2. Set SMTP_PASS to your Gmail App Password");
+        console.log(
+          "   3. For Gmail App Passwords: https://support.google.com/accounts/answer/185833"
         );
         return;
       }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(this.config.smtpUser)) {
+        console.warn(
+          "⚠️  Invalid SMTP_USER email format. Falling back to mock mode."
+        );
+        return;
+      }
+
+      console.log("📧 SMTP Configuration Status: ENABLED");
+      console.log(`   Host: ${this.config.smtpHost}:${this.config.smtpPort}`);
+      console.log(`   User: ${this.config.smtpUser}`);
 
       this.transporter = nodemailer.createTransport({
         host: this.config.smtpHost,
@@ -52,24 +75,30 @@ export class EmailService {
           user: this.config.smtpUser,
           pass: this.config.smtpPass,
         },
+        tls: {
+          rejectUnauthorized: false,
+        },
       });
     } catch (error) {
-      console.error("Failed to initialize email transporter:", error);
+      console.error("❌ Failed to initialize email transporter:", error);
+      console.log("   Falling back to mock mode for email functionality.");
+      this.transporter = null;
     }
   }
 
   async sendAssignmentEmail(emailData: AssignmentEmail): Promise<boolean> {
     if (!this.transporter) {
       console.log(
-        `[MOCK EMAIL] Would send email to ${emailData.participantEmail}:`
+        `📧 [MOCK EMAIL] Assignment for ${emailData.participantName} (${emailData.participantEmail})`
       );
       console.log(
-        `Subject: Your Secret Santa Assignment for ${emailData.sessionName}`
+        `   Subject: Your Secret Santa Assignment for ${emailData.sessionName}`
       );
       console.log(
-        `You are giving a gift to: ${emailData.giftRecipientName} (${emailData.giftRecipientEmail})`
+        `   Gift recipient: ${emailData.giftRecipientName} (${emailData.giftRecipientEmail})`
       );
-      return true; // Mock success
+      console.log(`   📬 Email would be sent successfully (mock mode)`);
+      return true;
     }
 
     try {
@@ -83,15 +112,27 @@ export class EmailService {
 
       const result = await this.transporter.sendMail(mailOptions);
       console.log(
-        `Email sent successfully to ${emailData.participantEmail}:`,
-        result.messageId
+        `✅ Email sent successfully to ${emailData.participantEmail}: ${result.messageId}`
       );
       return true;
-    } catch (error) {
-      console.error(
-        `Failed to send email to ${emailData.participantEmail}:`,
-        error
-      );
+    } catch (error: any) {
+      if (error?.code === "EAUTH") {
+        console.error(
+          `❌ Authentication failed for ${emailData.participantEmail}:`
+        );
+        console.error(`   Gmail credentials are invalid or expired.`);
+        console.error(
+          `   Please check your SMTP_USER and SMTP_PASS in .env file.`
+        );
+        console.error(
+          `   For Gmail, use App Passwords: https://support.google.com/accounts/answer/185833`
+        );
+      } else {
+        console.error(
+          `❌ Failed to send email to ${emailData.participantEmail}:`,
+          error?.message || error
+        );
+      }
       return false;
     }
   }

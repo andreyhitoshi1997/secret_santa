@@ -27,7 +27,6 @@ export const AddParticipantItemSchema = z.object({
 
 export type AddParticipantItem = z.infer<typeof AddParticipantItemSchema>;
 
-// Schema for the request body
 export const AddParticipantsRequestSchema = z.object({
   participants: z
     .array(AddParticipantItemSchema)

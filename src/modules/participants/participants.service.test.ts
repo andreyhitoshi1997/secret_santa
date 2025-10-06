@@ -10,7 +10,6 @@ import { ParticipantsService } from "./service";
 import { SessionStatus } from "../session/sessionStatus";
 import { AddParticipantsRequest } from "./model";
 
-// Mock the database client and schemas at the module level
 jest.mock("@/database/client", () => ({
   db: {
     select: jest.fn(),
@@ -733,7 +732,6 @@ describe("ParticipantsService", () => {
     it("should test addParticipants with comprehensive scenarios", async () => {
       const service = new ParticipantsService();
 
-      // Test various request scenarios
       const testScenarios = [
         {
           name: "single participant",
@@ -776,14 +774,12 @@ describe("ParticipantsService", () => {
             }
           );
 
-          // Validate response structure regardless of success/failure
           if (result) {
             expect(typeof result.added).toBe("number");
             expect(typeof result.totalParticipants).toBe("number");
             expect(Array.isArray(result.duplicatesIgnored)).toBe(true);
           }
         } catch (error) {
-          // Expected for some scenarios due to database constraints
           expect(error).toBeDefined();
         }
       }
@@ -805,7 +801,6 @@ describe("ParticipantsService", () => {
         try {
           const participants = await service.getParticipants(sessionId);
 
-          // Validate response structure
           expect(Array.isArray(participants)).toBe(true);
 
           if (participants.length > 0) {
@@ -815,7 +810,6 @@ describe("ParticipantsService", () => {
             expect(participant).toHaveProperty("isCreator");
           }
         } catch (error) {
-          // Expected for invalid session IDs
           expect(error).toBeDefined();
         }
       }
@@ -824,7 +818,6 @@ describe("ParticipantsService", () => {
     it("should exercise duplicate detection and email processing logic", async () => {
       const service = new ParticipantsService();
 
-      // Test duplicate detection scenarios
       const duplicateScenarios = [
         {
           sessionId: "duplicate-test-1",
@@ -857,7 +850,6 @@ describe("ParticipantsService", () => {
             participants: scenario.participants,
           });
         } catch (error) {
-          // Expected due to database constraints
           expect(error).toBeDefined();
         }
       }
@@ -866,7 +858,6 @@ describe("ParticipantsService", () => {
     it("should exercise error handling paths", async () => {
       const service = new ParticipantsService();
 
-      // Test various error conditions
       const errorScenarios = [
         {
           sessionId: null as any,
@@ -910,7 +901,6 @@ describe("ParticipantsService", () => {
       expect(typeof service.addParticipants).toBe("function");
       expect(typeof service.getParticipants).toBe("function");
 
-      // Test that methods can be called
       expect(() => {
         service.addParticipants("test", { participants: [] });
       }).toBeDefined();
@@ -928,7 +918,7 @@ describe("ParticipantsService", () => {
         { email: "test2@example.com", name: "" },
         { email: "test3@example.com", name: null as any },
         { email: "test4@example.com", name: undefined },
-        { email: "test5@example.com" }, // No name property
+        { email: "test5@example.com" },
         {
           email: "test6@example.com",
           name: "Very Long Name That Could Potentially Cause Issues With Database Constraints Or Validation Logic",
